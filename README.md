@@ -102,18 +102,41 @@ The node checks ComfyUI's current `text_encoders` folder semantics and also supp
 | --- | --- | --- |
 | `clip_name` | `STRING` | The selected CLIP/text encoder file name. |
 
+#### Clip Type Names
+
+Returns the selected CLIP type as a `STRING`.
+
+This is useful when the CLIP type needs to be selected in one place and passed into a loader later, the same way model, VAE, and CLIP file names can be passed around as strings.
+
+The available values mirror ComfyUI's built-in `CLIPLoader` type list, such as:
+
+- `stable_diffusion`
+- `stable_cascade`
+- `sd3`
+- `lumina2`
+- `wan`
+- `qwen_image`
+- `flux2`
+
+**Output:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `clip_type` | `STRING` | The selected CLIP type name. |
+
 #### Load Clip By Name
 
 Loads a CLIP/text encoder from a `STRING` file name.
 
-This follows ComfyUI's CLIP loader style by using a CLIP type and the configured embeddings directory.
+This follows ComfyUI's CLIP loader style by using a CLIP type and the configured embeddings directory. The node still has a normal `type` dropdown for simple workflows, but it also accepts an optional `clip_type` string input. When `clip_type` is connected, it overrides the dropdown value.
 
 **Inputs:**
 
 | Name | Type | Description |
 | --- | --- | --- |
 | `clip_name` | `STRING` | CLIP/text encoder file name, usually from `Clip Names`. |
-| `type` | dropdown | CLIP type, such as `stable_diffusion`, `sd3`, `flux2`, and other ComfyUI-supported types. |
+| `type` | dropdown | Fallback CLIP type, such as `stable_diffusion`, `sd3`, `flux2`, and other ComfyUI-supported types. Used when `clip_type` is not connected. |
+| `clip_type` | `STRING`, optional | CLIP type string, usually from `Clip Type Names`. If connected, this overrides the `type` dropdown. |
 | `device` | dropdown, advanced | `default` or `cpu`. Use `cpu` if you specifically want to force CLIP loading on CPU. |
 
 **Output:**
@@ -140,6 +163,7 @@ For example:
 Diffusion Model Names -> Load Diffusion Model By Name -> sampler branch
 VAE Names             -> Load VAE By Name             -> decode branch
 Clip Names            -> Load Clip By Name            -> conditioning branch
+Clip Type Names       -> Load Clip By Name            -> conditioning branch type
 ```
 
 ### Avoiding unnecessary memory pressure
@@ -188,7 +212,7 @@ utils/clip
 - The `Names` nodes only output strings. They do not load the actual model asset.
 - The `Load ... By Name` nodes perform the actual loading.
 - If a name does not exist in the expected ComfyUI folder, the loader raises a file-not-found error.
-- The CLIP loader requires the correct CLIP type for the selected text encoder.
+- The CLIP loader requires the correct CLIP type for the selected text encoder. Use `Clip Type Names` when you want that type to be selected/passed through the graph as a string.
 - The benefit is mostly seen in conditional, modular, or reusable workflows. In a simple linear workflow, the built-in ComfyUI loader nodes may be enough.
 
 ## Included nodes
@@ -198,4 +222,5 @@ utils/clip
 - `VAE Names`
 - `Load VAE By Name`
 - `Clip Names`
+- `Clip Type Names`
 - `Load Clip By Name`
